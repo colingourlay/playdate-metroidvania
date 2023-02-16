@@ -1,15 +1,18 @@
 {
-	"name": "playdate-metroidvania",
-	"version": "1.0.0-pre",
-	"description": "A game for Playdate",
-	"scripts": {
-		"start": "pd dev",
-		"build": "pd",
-		"build:release": "NODE_ENV=production pd",
-		"preview": "pd preview",
-		"preview:release": "NODE_ENV=production pd preview"
-	},
-	"dependencies": {
-		"pddx": "^1.0.0"
-	}
+  "name": "playdate-metroidvania",
+  "version": "1.0.0-pre",
+  "description": "A game for Playdate",
+  "scripts": {
+    "start": "pd dev",
+    "build": "pd",
+    "build:release": "NODE_ENV=production pd",
+    "preview": "pd preview",
+    "preview:release": "NODE_ENV=production pd preview"
+  },
+  "dependencies": {
+    "pddx": "^1.0.0"
+  },
+  "playdate": {
+    "previewTask": null
+  }
 }
