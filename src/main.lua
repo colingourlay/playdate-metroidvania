@@ -10,6 +10,7 @@ import "scripts/libraries/LDtk"
 
 -- Game
 import "scripts/GameScene"
+import "scripts/Player"
 
 GameScene()
 
