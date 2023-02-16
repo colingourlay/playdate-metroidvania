@@ -5,13 +5,14 @@ class('Player').extends(AnimatedSprite)
 
 function Player:init(x, y)
   -- State Machine
-  local playerImageTable = gfx.imagetable.new("images/player-table-16-16")
+  local playerImageTable = gfx.imagetable.new("images/player")
 
   Player.super.init(self, playerImageTable)
 
   self:addState("idle", 1, 1)
-  self:addState("run", 1, 3, { tickStep = 4})
+  self:addState("run", 1, 3, { tickStep =  4})
   self:addState("jump", 4, 4)
+  self:addState("dash", 4, 4)
   self:playAnimation()
 
   -- Sprite Properties
@@ -24,10 +25,23 @@ function Player:init(x, y)
   self.xVelocity = 0
   self.yVelocity = 0
   self.gravity = 1.0
-  self.maxSpeed = 2.0
+  self.maxSpeed = 2
   self.jumpVelocity = -6
   self.drag = 0.1
   self.minimumAirSpeed = 0.5
+
+  -- Abilities
+  self.doubleJumpAbility = true
+  self.dashAbility = true
+
+  -- Double Jump
+  self.doubleJumpAvailable = true
+  
+  -- Dash
+  self.dashAvailable = true
+  self.dashSpeed = 8
+  self.dashMinimumSpeed = 3
+  self.dashDrag = 0.8
 
   -- Player State
   self.touchingGround = false
@@ -60,6 +74,12 @@ function Player:handleState()
     self:applyGravity()
     self:applyDrag(self.drag)
     self:handleAirInput()
+  elseif self.currentState == "dash" then
+    self:applyDrag(self.dashDrag)
+
+    if math.abs(self.xVelocity) <= self.dashMinimumSpeed then
+      self:changeToFallState()
+    end
   end
 end
 
@@ -75,6 +95,8 @@ function Player:handleMovementAndCollisions()
 
     if collision.normal.y == -1 then
       self.touchingGround = true
+      self.dashAvailable = true
+      self.doubleJumpAvailable = true
     elseif collision.normal.y == 1 then
       self.touchingCeiling = true
     end
@@ -96,6 +118,8 @@ end
 function Player:handleGroundInput()
   if pd.buttonJustPressed(pd.kButtonA) then
     self:changeToJumpState()
+  elseif pd.buttonJustPressed(pd.kButtonB) and self.dashAbility and self.dashAvailable then
+    self:changeToDashState()
   elseif pd.buttonIsPressed(pd.kButtonLeft) then
     self:changeToRunState("left")
   elseif pd.buttonIsPressed(pd.kButtonRight) then
@@ -106,12 +130,19 @@ function Player:handleGroundInput()
 end
 
 function Player:handleAirInput()
-  if pd.buttonIsPressed(pd.kButtonLeft) then
+  if pd.buttonJustPressed(pd.kButtonA) and self.doubleJumpAbility and self.doubleJumpAvailable then
+    self.doubleJumpAvailable = false
+    self:changeToJumpState()
+  elseif pd.buttonJustPressed(pd.kButtonB) and self.dashAbility and self.dashAvailable then
+    self:changeToDashState()
+  elseif pd.buttonIsPressed(pd.kButtonLeft) then
     self.xVelocity = -self.maxSpeed
   elseif pd.buttonIsPressed(pd.kButtonRight) then
     self.xVelocity = self.maxSpeed
   end
 end
+
+-- State transitions
 
 function Player:changeToIdleState()
   self.xVelocity = 0
@@ -135,6 +166,29 @@ function Player:changeToJumpState()
   self:changeState("jump")
 end
 
+function Player:changeToFallState()
+  self:changeState("jump")
+end
+
+function Player:changeToDashState()
+  self.dashAvailable = false
+  self.yVelocity = 0
+
+  if pd.buttonIsPressed(pd.kButtonLeft) then
+    self.xVelocity = -self.dashSpeed
+  elseif pd.buttonIsPressed(pd.kButtonRight) then
+    self.xVelocity = self.dashSpeed
+  else
+    if self.globalFlip == 1 then
+      self.xVelocity = -self.dashSpeed
+    else
+      self.xVelocity = self.dashSpeed
+    end
+  end
+
+  self:changeState("dash")
+end
+
 function Player:applyGravity()
   self.yVelocity += self.gravity
 
@@ -150,7 +204,7 @@ function Player:applyDrag(amount)
     self.xVelocity += amount
   end
 
-  if math.abs(self.xVelocity) > self.minimumAirSpeed or self.touchingWall then
+  if math.abs(self.xVelocity) < self.minimumAirSpeed or self.touchingWall then
     self.xVelocity = 0
   end
 end
