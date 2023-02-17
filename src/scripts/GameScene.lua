@@ -3,12 +3,14 @@ local ldtk <const> = LDtk
 
 TAGS = {
   Player = 1,
-  Hazard = 2
+  Hazard = 2,
+  Pickup = 3
 }
 
 Z_INDEXES = {
   Player = 100,
-  Hazard = 20
+  Hazard = 20,
+  Pickup = 50
 }
 
 ldtk.load("levels/world.ldtk", false)
@@ -81,6 +83,8 @@ function GameScene:goToLevel(level_name)
       Spike(entityX, entityY)
     elseif entityName == "Spikeball" then
       Spikeball(entityX, entityY, entity)
+    elseif entityName == "Ability" then
+      Ability(entityX, entityY, entity)
     end
   end
 end

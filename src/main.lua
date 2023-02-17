@@ -13,6 +13,7 @@ import "scripts/GameScene"
 import "scripts/Player"
 import "scripts/Spike"
 import "scripts/Spikeball"
+import "scripts/Ability"
 
 GameScene()
 
