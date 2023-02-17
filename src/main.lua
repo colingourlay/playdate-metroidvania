@@ -11,6 +11,8 @@ import "scripts/libraries/LDtk"
 -- Game
 import "scripts/GameScene"
 import "scripts/Player"
+import "scripts/Spike"
+import "scripts/Spikeball"
 
 GameScene()
 
@@ -18,6 +20,6 @@ local pd <const> = playdate
 local gfx <const> = playdate.graphics
 
 function pd.update()
-    gfx.sprite.update()
-    pd.timer.updateTimers()
+  gfx.sprite.update()
+  pd.timer.updateTimers()
 end
