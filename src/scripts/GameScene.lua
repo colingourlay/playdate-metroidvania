@@ -13,7 +13,13 @@ Z_INDEXES = {
   Pickup = 50
 }
 
-ldtk.load("levels/world.ldtk", false)
+local usePrecomputedLevels = not playdate.isSimulator
+
+ldtk.load("levels/world.ldtk", usePrecomputedLevels)
+
+if playdate.isSimulator then
+  ldtk.export_to_lua_files()
+end
 
 class('GameScene').extends()
 
