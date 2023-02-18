@@ -2,6 +2,7 @@
   "name": "playdate-metroidvania",
   "version": "1.0.0-pre",
   "description": "A game for Playdate",
+  "author": "Colin Gourlay <colin@colin-gourlay.com>",
   "scripts": {
     "start": "pd dev",
     "build": "pd",
@@ -9,7 +10,12 @@
     "preview": "pd preview",
     "preview:release": "NODE_ENV=production pd preview"
   },
-  "dependencies": {
-    "pddx": "^1.0.1"
+  "playdate": {
+    "pdxinfo": {
+      "name": "Playdate Metroidvana"
+    }
+  },
+  "devDependencies": {
+    "pddx": "^1.0.2"
   }
 }
