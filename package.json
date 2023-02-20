@@ -1,6 +1,6 @@
 {
   "name": "playdate-metroidvania",
-  "version": "1.0.0-pre",
+  "version": "1.0.0",
   "description": "A game for Playdate",
   "author": "Colin Gourlay <colin@colin-gourlay.com>",
   "scripts": {
