@@ -1,10 +1,12 @@
-# playdate-metroidvania
+# Playdate Metroidvania
 
-A game for Playdate
+A game for Playdate by Colin Gourlay
+
+This was a code-along with SquidGodDev's [video tutorial](https://www.youtube.com/watch?v=7GbUxjE9rRM)
 
 ## Developing
 
-Once you've installed dependencies with `npm install` (or `pnpm install` or `yarn`), start the watcher:
+Once you've installed dependencies with `npm install`, start the watcher:
 
 ```bash
 npm start

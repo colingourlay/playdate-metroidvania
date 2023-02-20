@@ -10,12 +10,12 @@
     "preview": "pd preview",
     "preview:release": "NODE_ENV=production pd preview"
   },
+  "devDependencies": {
+    "pddx": "^1.0.3"
+  },
   "playdate": {
     "pdxinfo": {
-      "name": "Playdate Metroidvana"
+      "name": "Playdate Metroidvania"
     }
-  },
-  "devDependencies": {
-    "pddx": "^1.0.2"
   }
 }
