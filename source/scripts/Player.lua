@@ -5,6 +5,7 @@ class('Player').extends(AnimatedSprite)
 
 function Player:init(x, y, gameManager)
   self.gameManager = gameManager
+  print (x, y)
 
   -- State Machine
   local playerImageTable = gfx.imagetable.new("images/player")

@@ -7,11 +7,11 @@
     "start": "pd dev",
     "build": "pd",
     "build:release": "NODE_ENV=production pd",
-    "preview": "pd preview",
-    "preview:release": "NODE_ENV=production pd preview"
+    "simulate": "pd simulate",
+    "simulate:release": "NODE_ENV=production pd simulate"
   },
   "devDependencies": {
-    "pddx": "^1.0.3"
+    "pddx": "^3.0.0"
   },
   "playdate": {
     "pdxinfo": {
