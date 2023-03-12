@@ -11,7 +11,7 @@
     "simulate:release": "NODE_ENV=production pd simulate"
   },
   "devDependencies": {
-    "pddx": "^3.0.0"
+    "pddx": "^3.0.1"
   },
   "playdate": {
     "pdxinfo": {
