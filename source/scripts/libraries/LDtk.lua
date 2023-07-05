@@ -97,6 +97,7 @@ function LDtk.load(ldtk_file, use_lua_levels)
 	-- handle the tilesets
 	for tileset_index, tileset_data in ipairs(data.defs.tilesets) do
 		-- check if the image table is in the folder of the ldtk file
+		-- The playdate device cannot resolve path like "ldtk_folder/../other_folder"
 		if string.byte(".", 1) == string.byte(tileset_data.relPath, 1) then
 			error("Cannot load tileset used by LDtk levels. imageTable tilesets must be in the same folder as ldtk file.", 2)
 			return
@@ -259,6 +260,12 @@ function LDtk.load_level(level_name)
 		end
 	end
 
+	-- load level's custom fields
+	for index, field_data in ipairs(level_data.fieldInstances) do
+		level.custom_data = {}
+		level.custom_data[field_data.__identifier] = field_data.__value
+	end
+
 	-- handle layers
 	level.layers = {}
 	local layer_count = #level_data.layerInstances
@@ -355,6 +362,8 @@ function LDtk.load_level(level_name)
 
 				table.insert(layer.entities, {
 					name = entity_data.__identifier,
+					iid = entity_data.iid,
+					tileset_rect = entity_data.__tile,
 					position = { x = entity_data.px[1], y = entity_data.px[2] },
 					center = { x = entity_data.__pivot[1], y = entity_data.__pivot[2] },
 					size = { width = entity_data.width, height = entity_data.height },
@@ -418,7 +427,7 @@ function LDtk.get_entities(level_name, layer_name)
 end
 
 -- return a tilemap for the level
--- @layer_name is optional, if nil than will return the first layer with tiles
+-- @layer_name is optional, if nil then will return the first layer with tiles
 function LDtk.create_tilemap(level_name, layer_name)
 	local layer = _.get_tile_layer(level_name, layer_name)
 	if not layer then return end
@@ -447,6 +456,26 @@ end
 -- always available, the level doesn't need to be loaded
 function LDtk.get_rect(level_name)
 	return _level_rects[level_name]
+end
+
+-- return custom data for the specified level
+-- @field_name is optional, if nil then it will return all the fields as a table
+function LDtk.get_custom_data(level_name, field_name)
+	local level = _levels[level_name]
+	if not level then
+		return nil
+	end
+
+	local custom_data = level.custom_data
+	if not custom_data then
+		return nil
+	end
+
+	if field_name then
+		return custom_data[field_name]
+	end
+
+	return custom_data
 end
 
 -- return all the tileIDs tagged in LDtk with tileset_enum_value
@@ -489,6 +518,55 @@ function LDtk.get_layers(level_name)
 	return level.layers
 end
 
+-- Generate an image from a section of a tileset
+-- https://ldtk.io/json/#ldtk-TilesetRect
+-- You can use it as custom property
+function LDtk.generate_image_from_tileset_rect(tileset_rect)
+	if not tileset_rect then
+		return nil
+	end
+
+	-- Load tileset
+	local tileset = _tilesets[tileset_rect.tilesetUid]
+	if not tileset then
+		return nil
+	end
+	local cells = _.load_tileset_imagetable(tileset.imageTable_filename)
+	local cell_width, cell_height = cells[1]:getSize()
+	local x_count = math.ceil(tileset_rect.w / cell_width)
+	local y_count = math.ceil(tileset_rect.h / cell_height)
+
+	local entity_image = playdate.graphics.image.new(tileset_rect.w, tileset_rect.h)
+
+	playdate.graphics.lockFocus(entity_image)
+	for y = 0, y_count - 1 do
+		for x = 0, x_count - 1 do
+			cells:getImage(1 + (tileset_rect.x // cell_width) + x, 1 + (tileset_rect.y // cell_height) + y):draw(x * cell_width,
+				y * cell_height)
+		end
+	end
+	playdate.graphics.unlockFocus()
+
+	_.release_tileset_imagetable(tileset.imageTable_filename)
+
+	return entity_image
+end
+
+-- Generate an image of an entity
+-- The entity needs to have the 'Editor Visual' property set to a tileset in LDtk
+function LDtk.generate_image_from_entity(entity)
+	if not entity then
+		return nil
+	end
+
+	if not entity.tileset_rect then
+		print("LDtk: Cannot generate entity image. No tileset assigned to it.")
+		return
+	end
+
+	return LDtk.generate_image_from_tileset_rect(entity.tileset_rect)
+end
+
 --
 -- internal functions
 --
@@ -499,7 +577,7 @@ end
 
 function _.get_folder(filepath)
 	local filename = filepath:match("^.+/(.+)$")
-	return filepath:sub(0, -#filename - 1)
+	return filepath:sub(0, - #filename - 1)
 end
 
 function _.load_tileset(level_name)
@@ -527,7 +605,7 @@ function _.load_tileset_imagetable(path, flipped)
 	local image_filepath
 	if flipped then
 		local filename = path:match("^.+/(.+)$")
-		local tileset_folder = path:sub(0, -#filename - 1)
+		local tileset_folder = path:sub(0, - #filename - 1)
 		image_filepath = _ldtk_folder .. tileset_folder .. "flipped-" .. filename
 	else
 		image_filepath = _ldtk_folder .. path
@@ -537,12 +615,12 @@ function _.load_tileset_imagetable(path, flipped)
 	if not image then
 		if flipped then
 			error(
-				"LDtk cannot load tileset " ..
-				image_filepath .. ". Tileset requires a flipped version of the image: flipped-filename-table-w-h.png", 3)
+			"LDtk cannot load tileset " ..
+			image_filepath .. ". Tileset requires a flipped version of the image: flipped-filename-table-w-h.png", 3)
 		else
 			error(
-				"LDtk cannot load tileset " .. image_filepath ..
-				". Filename should have a image table format: name-table-w-h.png", 3)
+			"LDtk cannot load tileset " .. image_filepath .. ". Filename should have a image table format: name-table-w-h.png",
+				3)
 		end
 
 		return nil
