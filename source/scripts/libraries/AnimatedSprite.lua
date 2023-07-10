@@ -15,7 +15,7 @@ local function emptyFunc()end
 
 class("AnimatedSprite").extends(gfx.sprite)
 
----@param imagetable table
+---@param imagetable table|string actual imagetable or path
 ---@param states? table If provided, calls `setStates(states)` after initialisation
 ---@param animate? boolean If `True`, then the animation of default state will start after initialisation. Default: `False`
 function AnimatedSprite.new(imagetable, states, animate)
@@ -26,6 +26,9 @@ function AnimatedSprite:init(imagetable, states, animate)
 	AnimatedSprite.super.init(self)
 
 	---@type table
+	if (type(imagetable) == "string") then
+		imagetable = gfx.imagetable.new(imagetable)
+	end
 	self.imagetable = imagetable
 	assert(self.imagetable, "Imagetable is nil. Check if it was loaded correctly.")
 
@@ -163,10 +166,8 @@ local function addState(self, params)
 	state.name = params.name
 	if (params.frames ~= nil) then
 		state["frames"] = params.frames -- Custom animation for non-sequential frames from the imagetable
-		params.framesCount = params.framesCount or #params.frames
-		if (type(params.firstFrameIndex) ~= "string") then
-			params.firstFrameIndex = params.firstFrameIndex or 1
-		end
+		params.firstFrameIndex = 1
+		params.framesCount = #params.frames
 	end
 	if (type(params.firstFrameIndex) == "string") then
 		local thatState = self.states[params.firstFrameIndex]
