@@ -10,12 +10,12 @@
     "simulate": "pd simulate",
     "simulate:release": "NODE_ENV=production pd simulate"
   },
-  "devDependencies": {
-    "pddx": "^3.2.1"
-  },
   "playdate": {
     "pdxinfo": {
       "name": "Playdate Metroidvania"
     }
+  },
+  "devDependencies": {
+    "pddx": "^3.2.2"
   }
 }
